@@ -1,0 +1,11 @@
+/**
+ * Place your custom CSS styles here.
+ **/
+
+div.noty_message {
+	text-align: center !important;
+}
+
+div.noty_message a {
+	color: #fff !important;
+}
