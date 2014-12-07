@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "manifest_version": 2,
     "description": "Save Quora Answers, Questions and Posts to Pocket",
-    "homepage_url": "http://extensionizr.com",
+    "homepage_url": "https://github.com/suryatech/Quora-Save-To-Pocket",
     "icons": {
         "16": "icons/icon16.png",
         "48": "icons/icon48.png",

@@ -90,7 +90,7 @@
             "authorize": "https://getpocket.com/v3/oauth/authorize",
             "requestToken": "https://getpocket.com/v3/oauth/request",
             "add": "https://getpocket.com/v3/add",
-            "github": "https://github.com/suryatech"
+            "github": "https://github.com/suryatech/Quora-Save-To-Pocket"
         };
     
     chrome.runtime.onMessage.addListener(function(msg) {
