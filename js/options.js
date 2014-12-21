@@ -15,11 +15,12 @@
         initNoty = function() {
             $.noty.defaults = {
                 layout: 'topRight',
-                theme: 'defaultTheme',
+                theme: 'relax',
                 type: 'alert',
-                text: 'Sample Notification', // can be html or string
-                dismissQueue: false, // If you want to use queue feature set this true
-                template: '<div class="noty_message"><span class="noty_text"></span><div class="noty_close"></div></div>',
+                text: 'Sample Notification',
+                dismissQueue: false,
+                template: '<div class="noty_message"><span class="noty_text">\
+                            </span><div class="noty_close"></div></div>',
                 animation: {
                     open: {
                         height: 'toggle'
@@ -28,26 +29,27 @@
                         height: 'toggle'
                     },
                     easing: 'swing',
-                    speed: 250 // opening & closing animation speed
+                    speed: 250
                 },
-                timeout: false, // delay for closing event. Set false for sticky notifications
-                force: true, // adds notification to the beginning of queue when set to true
+                timeout: false,
+                force: true,
                 modal: false,
-                maxVisible: 1, // you can set max visible notification for dismissQueue true option,
-                killer: true, // for close all notifications before show
-                closeWith: ['click'], // ['click', 'button', 'hover', 'backdrop'] // backdrop click will close all open notifications
+                maxVisible: 1,
+                killer: true,
+                closeWith: ['click'],
                 callback: {
                     onShow: function() {},
                     afterShow: function() {},
                     onClose: function() {},
                     afterClose: function() {}
                 },
-                buttons: false // an array of buttons
+                buttons: false
             };
         },
         data = {
             consumer_key: "34861-28c2d90660db385a7d94bd26",
-            redirect_uri: "chrome-extension://" + chrome.runtime.id + "/html/options.html?getAccessToken=1",
+            redirect_uri: "chrome-extension://" + chrome.runtime.id +
+                            "/html/options.html?getAccessToken=1",
             access_token: false,
             username: false,
             request_token: false
@@ -112,7 +114,8 @@
             notyRef = noty({
                 text: "Please login to start using the extension",
                 type: "warning",
-                layout: "topRight"
+                layout: "topRight",
+                theme: "relax"
             });
         }
     });
@@ -196,8 +199,7 @@
                     $('#login-link').hide();
                     $('#logout-link').show();
 
-                    notyRef.setText('Extension has been successfully authenticated.\
-                                 Welcome aboard!');
+                    notyRef.setText('Extension authorization was successful!');
                     notyRef.setType('success');
 
                 } else {
@@ -245,7 +247,8 @@
                     'request_token': res.code   
                 });
                 
-                notyRef.setText('Request token genereated, waiting for permissions...');
+                notyRef.setText('Request token genereated, waiting for \
+                                permissions...');
                 notyRef.setType('warning');
 
                 oAuthRedirect();
