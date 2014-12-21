@@ -3,7 +3,58 @@
     var storage = chrome.storage.local,
         notyRef,
         port,
-        id = chrome.runtime.id;
+        id = chrome.runtime.id,
+        x_error,
+        x_error_code,
+        element = '<div class="action_item"><span><a class=\
+                    "saveToPocket">Save to Pocket</a></span></div>',
+        notify = function(msg, type){
+            if(notyRef){
+                notyRef.close();
+            }
+
+            notyRef = noty({
+                text: msg,
+                type: type
+            });
+        },
+        processNewNode = function(e){
+            if(e.animationName === 'nodeInserted'){
+                // If extension is disconnected, do not perform any task.
+                if(!port){
+                    return;
+                }
+
+                // pagedlist_item
+                $this = $(e.target);
+
+                //console.log($this);
+                insertSaveToPocket($this);
+            }
+        },
+        insertSaveToPocket = function(node){
+            var el = $(element),
+                actionBar = node.find('div.ActionBar'),
+                classList = actionBar.attr('class');
+
+            // Add button to answers, questions and posts.
+            // All other items can be directly saved by clicking the
+            // pocket extension icon.
+
+            if (actionBar.find('a.saveToPocket').length == 0 &&
+                actionBar.find('a.savedToPocket').length == 0) {
+
+                var link = el.find('a').eq(0),
+                    url = node.find('span.timestamp a').attr('href') ||
+                            node.find('a.answer_permalink').attr('href') ||
+                            node.find('a.timestamp').attr('href');
+
+                if (url) {
+                    link.attr('href', url);
+                    actionBar.append(el);
+                }
+            }
+        },
         reconnectExtension = function(){
             console.log("port reset");
             port = false;
@@ -22,7 +73,7 @@
         initNoty = function() {
             $.noty.defaults = {
                 layout: 'topRight',
-                theme: 'defaultTheme',
+                theme: 'relax',
                 type: 'alert',
                 text: 'Sample Notification',
                 dismissQueue: false, 
@@ -39,7 +90,7 @@
                     speed: 250 
                 },
                 timeout: false, 
-                force: true, 
+                force: false,
                 modal: false,
                 maxVisible: 1, 
                 killer: true, 
@@ -74,7 +125,9 @@
 
             connectToExtension();
         },
-        saveItem = function(url) {
+        saveItem = function(url, target) {
+
+            target = $(target);
 
             storage.get('access_token', function(o) {
 
@@ -93,34 +146,39 @@
                 })
                     .done(function(data, textStatus, req) {
 
-                        notyRef.setText('Item saved successfully');
-                        notyRef.setType('success');
+                        //notify("Item saved successfully", "success");
+                        target
+                            .removeClass('saveToPocket')
+                            .addClass('savedToPocket')
+                            .text('Saved to Pocket')
                     })
                     .fail(function(req) {
 
                         handleError(req);
 
+                        if(!x_error_code && !x_error){
+                            x_error = "";
+                            x_error_code = "Something went wrong"
+                        }
+
                         var baseUri = 'chrome-extension://' + chrome.runtime.id 
                                     + '/html/options.html';
 
-                        storage.get(["x_error_code", "x_error"], function(o) {
-                            var text = o.x_error_code + ": " + o.x_error
+                        var text = x_error_code + ": " + x_error
                                     + "<br> Click <a target='_blank' href=" 
                                     + baseUri + ">here</a> to troubleshoot";
 
-                            notyRef.setText(text);
-                            notyRef.setType('error');
+                        notify(text, "error");
 
-                            console.log("An error has occured\
-                                         while saving the answer");
-                        });
+                        target.text('Save to Pocket');
+                        console.log("An error has occured\
+                                     while saving the answer");
                     });
             });
         },
         handleError = function(req) {
 
-            var headers = req.getAllResponseHeaders().split('\n'),
-                x_error, x_error_code;
+            var headers = req.getAllResponseHeaders().split('\n');
 
             headers.forEach(function(item) {
                 
@@ -152,78 +210,15 @@
 
                 console.log("A hello from Quora Save to Pocket Extension");
 
-                $("body").on('click', 'a.overflow_link', function(ev) {
+                document.addEventListener("webkitAnimationStart",
+                                            processNewNode, false);
 
-                    // If extension is disconnected, do not perform any task.
-                    if(!port){
-                        return;
-                    }
-
-                    ev.preventDefault();
-                    $this = $(this);
-
-                    var el = $('<li class="menu_list_item saveToPocket"><span>\
-                        <a>Save to Pocket</a></span></li>'),
-                        id = $this.attr('id').replace('_link', ''),
-                        t = $('#' + id + '_menu_contents ul'),
-                        actionBar = $this.parents('div.ActionBar'),
-                        classList = actionBar.attr('class');
-
-                    // Add button to answers, questions and posts.
-                    // All other items can be directly saved by clicking the
-                    // pocket extension icon.
-
-                    if ((classList.indexOf('Answer') >= 0 
-                        || classList.indexOf('Question') >= 0 
-                        || classList.indexOf('Post') >= 0) 
-                        && t.find('li.saveToPocket').length == 0) {
-
-                        var feedItem = $this.parents('div.pagedlist_item'),
-                            link = el.find('a').eq(0),
-                            remove = false;
-
-
-                        if (classList.indexOf('Answer') >= 0) {
-
-                            var url = feedItem.find('a.answer_permalink').attr('href');
-
-                            if (url) {
-                                link.attr('href', url);
-                            } else {
-                                remove = true;
-                            }
-                        } else if (classList.indexOf('Question') >= 0) {
-
-                            var url = feedItem.find('a.question_link').attr('href');
-
-                            if (url) {
-                                link.attr('href', url);
-                            } else {
-                                remove = true;
-                            }
-                        } else if (classList.indexOf('Post') >= 0) {
-
-                            // Non-feed (single page) posts can be saved using the link
-                            // in the address bar.
-
-                            // All posts that appear in feeds will bear a save to pocket
-                            // link.
-                            var url = feedItem.find('a.BoardItemTitle').attr('href');
-
-                            if (url) {
-                                link.attr('href', url);
-                            } else {
-                                remove = true;
-                            }
-                        }
-
-                        if (!remove) {
-                            t.append(el);
-                        }
-                    }
+                // Add link to initial set of pagedlist_items
+                $('div.pagedlist_item').each(function(i, node){
+                    insertSaveToPocket($(node));
                 });
 
-                $('body').on('click', 'li.saveToPocket a', function(ev) {
+                $('body').on('click', 'a.saveToPocket', function(ev) {
 
                     // If extension is disconnected, do not perform any task.
                     if(!port){
@@ -234,15 +229,22 @@
                     var url = ev.target.href;
                     $this = $(this);
                     if (url) {
-                        notyRef = noty({
-                            text: "Saving Item...",
-                            type: "info",
-                            layout: "topRight"
-                        });
+                        $(ev.target).text('Saving...');
 
-                        saveItem(url);
+                        //notify("Saving Item...", "info");
+                        saveItem(url, ev.target);
                     }
                 });
+
+                $('body').on('click', 'a.savedToPocket', function(ev) {
+
+                    // If extension is disconnected, do not perform any task.
+                    if(!port){
+                        return;
+                    }
+
+                    ev.preventDefault();
+                });
             }
-        }, 10);
+        }, 10)
 })();

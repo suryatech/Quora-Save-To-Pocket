@@ -1,11 +1,30 @@
-/**
- * Place your custom CSS styles here.
- **/
-
 div.noty_message {
 	text-align: center !important;
 }
 
 div.noty_message a {
 	color: #fff !important;
+}
+
+a.savedToPocket{
+	font-style: italic;
+}
+
+@keyframes nodeInserted{
+	from { opacity: 0.99;}
+	to { opacity: 1;}
+}
+
+@-webkit-keyframes nodeInserted{
+	from { opacity: 0.99;}
+	to { opacity: 1;}
+}
+
+div.pagedlist_item {
+
+	animation-duration: 0.001s;
+	-webkit-animation-duration: 0.001s;
+
+	animation-name: nodeInserted;
+	-webkit-animation-name: nodeInserted;
 }
