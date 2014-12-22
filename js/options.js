@@ -138,11 +138,7 @@
             event.preventDefault();
             getRequestToken();
         });
-
-        $("#email").click(function(event) {
-            event.preventDefault();
-        });
-
+        
         init();
     });
 
