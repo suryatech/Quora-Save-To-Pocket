@@ -6,8 +6,7 @@
         id = chrome.runtime.id,
         x_error,
         x_error_code,
-        element = '<div class="action_item"><span><a class=\
-                    "saveToPocket">Save to Pocket</a></span></div>',
+        element = '<div class="action_item"><span><a class="saveToPocket">Save to Pocket</a></span></div>',
         notify = function(msg, type){
             if(notyRef){
                 notyRef.close();
@@ -36,12 +35,8 @@
             var el = $(element),
                 actionBar = node.find('div.ActionBar');
                 
-            // Add button to answers, questions and posts.
-            // All other items can be directly saved by clicking the
-            // pocket extension icon.
-
-            if (actionBar.find('a.saveToPocket').length == 0 &&
-                actionBar.find('a.savedToPocket').length == 0) {
+            if (actionBar.find('a.saveToPocket').length === 0 &&
+                actionBar.find('a.savedToPocket').length === 0) {
 
                 var link = el.find('a').eq(0),
                     url = node.find('span.timestamp a').attr('href') ||
@@ -76,8 +71,7 @@
                 type: 'alert',
                 text: 'Sample Notification',
                 dismissQueue: false, 
-                template: '<div class="noty_message"><span class="noty_text">\
-                        </span><div class="noty_close"></div></div>',
+                template: '<div class="noty_message"><span class="noty_text"></span><div class="noty_close"></div></div>',
                 animation: {
                     open: {
                         height: 'toggle'
@@ -105,14 +99,14 @@
         },
         data = {
             consumer_key: "34861-28c2d90660db385a7d94bd26",
-            redirect_uri: "chrome-extension://" + chrome.runtime.id + "/html/\
-                            options.html?getAccessToken=1",
+            redirect_uri: "chrome-extension://" + chrome.runtime.id + "/html/options.html?getAccessToken=1",
             access_token: false,
             username: false,
             request_token: false
         },
         urls = {
             "add": "https://getpocket.com/v3/add",
+            "remove": "https://getpocket.com/v3/send"
         },
         init = function() {
 
@@ -125,8 +119,6 @@
             connectToExtension();
         },
         saveItem = function(url, target) {
-
-            target = $(target);
 
             storage.get('access_token', function(o) {
 
@@ -149,7 +141,8 @@
                         target
                             .removeClass('saveToPocket')
                             .addClass('savedToPocket')
-                            .text('Saved to Pocket')
+                            .text('Remove from Pocket')
+                            .data('id', data.item.item_id);
                     })
                     .fail(function(req) {
 
@@ -157,7 +150,7 @@
 
                         if(!x_error_code && !x_error){
                             x_error = "";
-                            x_error_code = "Something went wrong"
+                            x_error_code = "Something went wrong";
                         }
 
                         var baseUri = 'chrome-extension://' + chrome.runtime.id 
@@ -170,8 +163,61 @@
                         notify(text, "error");
 
                         target.text('Save to Pocket');
-                        console.log("An error has occured\
-                                     while saving the answer");
+                        console.log("An error has occured while saving the answer");
+                    });
+            });
+        },
+        removeItem = function(target) {
+
+            storage.get('access_token', function(o) {
+
+                $.ajax({
+                    url: urls.remove,
+                    type: 'POST',
+                    dataType: 'json',
+                    processData: false,
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        "access_token": o.access_token,
+                        "consumer_key": data.consumer_key,
+                        "actions": [{
+                            "action": "delete",
+                            "item_id": target.data('id')
+                        }]
+                    }),
+                    headers: {
+                        "X-Accept": "application/json"
+                    }
+                })
+                    .done(function(data, textStatus, req) {
+
+                        //notify("Item saved successfully", "success");
+                        target
+                            .removeClass('savedToPocket')
+                            .addClass('saveToPocket')
+                            .text('Save to Pocket')
+                            .removeData('id');
+                    })
+                    .fail(function(req) {
+
+                        handleError(req);
+
+                        if(!x_error_code && !x_error){
+                            x_error = "";
+                            x_error_code = "Something went wrong";
+                        }
+
+                        var baseUri = 'chrome-extension://' + chrome.runtime.id
+                                    + '/html/options.html';
+
+                        var text = x_error_code + ": " + x_error
+                                    + "<br> Click <a target='_blank' href="
+                                    + baseUri + ">here</a> to troubleshoot";
+
+                        notify(text, "error");
+
+                        target.text('Remove from Pocket');
+                        console.log("An error has occured while saving the answer");
                     });
             });
         },
@@ -225,13 +271,14 @@
                     }
 
                     ev.preventDefault();
-                    var url = ev.target.href;
-                    $this = $(this);
+                    var url = ev.target.href,
+                        link = $(ev.target);
+
                     if (url) {
-                        $(ev.target).text('Saving...');
+                        link.text('Saving...');
 
                         //notify("Saving Item...", "info");
-                        saveItem(url, ev.target);
+                        saveItem(url, link);
                     }
                 });
 
@@ -243,7 +290,12 @@
                     }
 
                     ev.preventDefault();
+
+                    var link = $(ev.target);
+                    link.text('Removing...');
+
+                    removeItem(link);
                 });
             }
-        }, 10)
+        }, 10);
 })();
