@@ -26,7 +26,7 @@
                 }
 
                 // pagedlist_item
-                $this = $(e.target);
+                var $this = $(e.target);
 
                 //console.log($this);
                 insertSaveToPocket($this);
@@ -34,9 +34,8 @@
         },
         insertSaveToPocket = function(node){
             var el = $(element),
-                actionBar = node.find('div.ActionBar'),
-                classList = actionBar.attr('class');
-
+                actionBar = node.find('div.ActionBar');
+                
             // Add button to answers, questions and posts.
             // All other items can be directly saved by clicking the
             // pocket extension icon.
