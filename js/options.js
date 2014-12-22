@@ -3,7 +3,7 @@
     chrome.storage.onChanged.addListener(function(changes, namespace){
         if(namespace === 'local'){
   
-            for(key in changes){
+            for(var key in changes){
                 if(data.hasOwnProperty(key)){
                     data[key] = changes[key].newValue;
                 }
@@ -19,8 +19,7 @@
                 type: 'alert',
                 text: 'Sample Notification',
                 dismissQueue: false,
-                template: '<div class="noty_message"><span class="noty_text">\
-                            </span><div class="noty_close"></div></div>',
+                template: '<div class="noty_message"><span class="noty_text"></span><div class="noty_close"></div></div>',
                 animation: {
                     open: {
                         height: 'toggle'
@@ -142,17 +141,6 @@
 
         $("#email").click(function(event) {
             event.preventDefault();
-
-            chrome.windows.getCurrent(function(w) {
-                chrome.windows.update(w.id, {
-                    focused: true
-                }, function(w) {
-                    chrome.tabs.create({
-                        url: url,
-                        windowId: w.id
-                    });
-                });
-            })
         });
 
         init();
@@ -161,7 +149,7 @@
     var authorize = function() {
 
         if(!data.popup){
-            // Only the main instance would call authorize
+            // Only the main instance would call authorize.
             return;
         }
 
@@ -203,8 +191,7 @@
                     notyRef.setType('success');
 
                 } else {
-                    notyRef.setText('Invalid access_token sent by server. Please\
-                                 ensure that you have granted permissions.');
+                    notyRef.setText('Invalid access_token sent by server. Please ensure that you have granted permissions.');
                     notyRef.setType('error');
                 }
             })
@@ -247,8 +234,7 @@
                     'request_token': res.code   
                 });
                 
-                notyRef.setText('Request token genereated, waiting for \
-                                permissions...');
+                notyRef.setText('Request token genereated, waiting for permissions...');
                 notyRef.setType('warning');
 
                 oAuthRedirect();
@@ -316,7 +302,7 @@
                 data.popup = p;
             });
         });
-    }
+    };
 
     var printErrorMessage = function(){
 
@@ -327,5 +313,5 @@
             notyRef.setType('error');    
         });
 
-    }
+    };
 })();
