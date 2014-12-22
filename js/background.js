@@ -11,7 +11,7 @@ chrome.runtime.onInstalled.addListener(function(obj) {
             populate: false
         }, function(w) {
             chrome.windows.update(w.id, {
-                focused: true,
+                focused: true
             }, function(w) {
                 chrome.tabs.create({
                     url: url,
@@ -39,7 +39,7 @@ chrome.runtime.onInstalled.addListener(function(obj) {
                         });
 
                         chrome.tabs.executeScript(tab.id, {
-                            file: "js/jquery.noty.packaged.min.js",
+                            file: "js/jquery.noty.packaged.min.js"
                         });
 
                         chrome.tabs.executeScript(tab.id, {
