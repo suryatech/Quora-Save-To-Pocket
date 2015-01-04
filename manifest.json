@@ -1,6 +1,6 @@
 {
     "name": "Quora - Save to Pocket",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "manifest_version": 2,
     "description": "Save Quora Answers, Questions and Blog Posts to Pocket",
     "homepage_url": "https://github.com/suryatech/Quora-Save-To-Pocket",
@@ -25,15 +25,14 @@
         "css/inject.css"
     ],
     "permissions": [
-        "https://*.quora.com/*",
-        "http://*.quora.com/*",
+        "*://*.quora.com/*",
         "https://*.getpocket.com/*",
         "tabs",
         "storage"
     ],
     "content_scripts": [{
         "matches": [
-            "https://*.quora.com/*", "http://*.quora.com/"
+            "*://*.quora.com/*"
         ],
         "css": [
             "css/inject.css"
