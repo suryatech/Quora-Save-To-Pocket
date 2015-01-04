@@ -1,6 +1,6 @@
 chrome.runtime.onInstalled.addListener(function(obj) {
 
-    var regex = /http(s){0,1}:(\/\/).*(\.)*quora\.com(\/)*.*/;
+    var regex = /(http(s){0,1}:(\/\/))?.*(\.)*quora\.com(\/)*.*/;
     
     var url = "chrome-extension://" + chrome.runtime.id
                 +"/html/options.html?firstRun";
