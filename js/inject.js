@@ -49,6 +49,23 @@
                 }
             }
         },
+
+        insertLinkForQuestion = function(node, questionURL){
+            var el = $(element),
+                actionBar = node;
+
+            if (actionBar.find('a.saveToPocket').length === 0 &&
+                actionBar.find('a.savedToPocket').length === 0) {
+
+                var link = el.find('a').eq(0);
+
+                if (questionURL) {
+                    link.attr('href', questionURL);
+                    actionBar.append(el);
+                }
+            }
+        },
+
         reconnectExtension = function(){
             console.log("port reset");
             port = false;
@@ -259,8 +276,12 @@
                                             processNewNode, false);
 
                 // Add link to initial set of pagedlist_items
-                $('div.pagedlist_item').each(function(i, node){
+                $('div.pagedlist_item, div.Answer.AnswerStandalone').each(function(i, node){
                     insertSaveToPocket($(node));
+                });
+
+                $('div.ActionBar.Question').each(function(i, node){
+                    insertLinkForQuestion($(node), document.URL);
                 });
 
                 $('body').on('click', 'a.saveToPocket', function(ev) {
