@@ -35,7 +35,7 @@
 		getLinkForNode = function(node, actionBar){
 
 			// Better validation of node, actionBar
-			if(actionBar.length === 0){
+			if(actionBar.length === 0 || node.length === 0){
 				return "#";
 			}
 
@@ -44,6 +44,8 @@
 
 			if(className.indexOf("Question") >= 0){
 				link = node.find("a.question_link").attr("href");
+			}else if(node[0].className.indexOf("AnswerStandalone") >= 0){
+				link = document.URL;
 			}else if(className.indexOf("Answer") >= 0){
 				var user = node.find("a.user").attr('href');
 				var question = node.find("a.question_link").attr("href");
@@ -287,7 +289,7 @@
                                             processNewNode, false);
 
                 // Add link to initial set of pagedlist_items
-                $('div.pagedlist_item, div.Answer.AnswerStandalone').each(function(i, node){
+                $("div.pagedlist_item, div.QuestionArea, div.AnswerStandalone").each(function(i, node){
                     insertSaveToPocket($(node));
                 });
 
