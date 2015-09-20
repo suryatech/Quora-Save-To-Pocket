@@ -6,6 +6,7 @@
         id = chrome.runtime.id,
         x_error,
         x_error_code,
+	    $body = $('body'),
         element = '<div class="action_item"><span><a class="saveToPocket">Save to Pocket</a></span></div>',
         notify = function(msg, type){
             if(notyRef){
@@ -31,41 +32,51 @@
                 insertSaveToPocket($this);
             }
         },
+		getLinkForNode = function(node, actionBar){
+
+			// Better validation of node, actionBar
+			if(actionBar.length === 0){
+				return "#";
+			}
+
+			var className = actionBar[0].className,
+				link;
+
+			if(className.indexOf("Question") >= 0){
+				link = node.find("a.question_link").attr("href");
+			}else if(className.indexOf("Answer") >= 0){
+				var user = node.find("a.user").attr('href');
+				var question = node.find("a.question_link").attr("href");
+
+				link = question + "/answer" + user;
+			}else if(className.indexOf("Topic") >= 0){
+				link = node.find("a.TopicNameLink").attr("href");
+			}
+
+			return link;
+		},
         insertSaveToPocket = function(node){
+
+	        // Better validation of node here.
+	        if(!node){
+		        return;
+	        }
+
             var el = $(element),
-                actionBar = node.find('div.ActionBar');
-                
+                actionBar = node.find('div.ActionBar'),
+	            url = getLinkForNode(node, actionBar);
+
+
             if (actionBar.find('a.saveToPocket').length === 0 &&
                 actionBar.find('a.savedToPocket').length === 0) {
+				var link = el.find('a').eq(0);
 
-                var link = el.find('a').eq(0),
-                    url = node.find('span.timestamp a').attr('href') ||
-                            node.find('a.answer_permalink').attr('href') ||
-                            node.find('a.timestamp').attr('href');
-
-                if (url) {
+                if (typeof url === 'string') {
                     link.attr('href', url);
                     actionBar.append(el);
                 }
             }
         },
-
-        insertLinkForQuestion = function(node, questionURL){
-            var el = $(element),
-                actionBar = node;
-
-            if (actionBar.find('a.saveToPocket').length === 0 &&
-                actionBar.find('a.savedToPocket').length === 0) {
-
-                var link = el.find('a').eq(0);
-
-                if (questionURL) {
-                    link.attr('href', questionURL);
-                    actionBar.append(el);
-                }
-            }
-        },
-
         reconnectExtension = function(){
             console.log("port reset");
             port = false;
@@ -280,11 +291,7 @@
                     insertSaveToPocket($(node));
                 });
 
-                $('div.ActionBar.Question').each(function(i, node){
-                    insertLinkForQuestion($(node), document.URL);
-                });
-
-                $('body').on('click', 'a.saveToPocket', function(ev) {
+                $body.on('click', 'a.saveToPocket', function(ev) {
 
                     // If extension is disconnected, do not perform any task.
                     if(!port){
@@ -303,7 +310,7 @@
                     }
                 });
 
-                $('body').on('click', 'a.savedToPocket', function(ev) {
+                $body.on('click', 'a.savedToPocket', function(ev) {
 
                     // If extension is disconnected, do not perform any task.
                     if(!port){
