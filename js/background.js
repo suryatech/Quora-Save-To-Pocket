@@ -32,7 +32,7 @@ chrome.runtime.onInstalled.addListener(function(obj) {
             w.forEach(function(item) {
                 item.tabs.forEach(function(tab) {
                     if (regex.test(tab.url)) {
-                        console.log(tab.url);
+                        console.log("Tab url matches regex", tab.url);
 
                         chrome.tabs.executeScript(tab.id, {
                             file: "js/jquery/jquery.min.js"
@@ -58,5 +58,5 @@ chrome.runtime.onInstalled.addListener(function(obj) {
 });
 
 chrome.runtime.onConnect.addListener(function(port) {
-    console.log("Connected");
+    console.log("Connected to save to pocket extension");
 });
