@@ -299,26 +299,27 @@
                 documentSelector.bind('DOMNodeInserted', function (e) {
                     var element = e.target;
 
-                    // For new feed items (solves for questions)
+                    // Share button inside the action bar
+                    $(element).find("div.ActionBar div.action_bar_inner").each(function (i, node) {
+                        console.debug("inserting link in action bar because of changes to dom");
+                        insertSaveToPocket($(node));
+                    });
+
+                    // Solves for questions with no share button
                     $(element).find("div.feed_item").each(function (i, node) {
                         console.debug("inserting link in question because of changes to dom");
                         handleQuestionItem($(node));
                     });
 
-                    // For everything else that has a share button inside the action bar
-                    $(element).find("div.ActionBar div.action_bar_inner").each(function (i, node) {
-                        console.debug("inserting link in action bar because of changes to dom");
-                        insertSaveToPocket($(node));
-                    });
                 });
 
-                // Initial set of share
+                // Initial list of items with share button
                 $("div.ActionBar div.action_bar_inner").each(function (i, node) {
                     console.debug("inserting link in action bar during first run");
                     insertSaveToPocket($(node));
                 });
 
-                // Add link to initial set of feed items (solves for questions)
+                // Solves for questions with no share button
                 $("div.feed_item").each(function (i, node) {
                     console.debug("inserting link in question during first run");
                     handleQuestionItem($(node));
