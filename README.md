@@ -1,4 +1,4 @@
-DEPECATED
+DEPRECATED
 =======
 
 About Quora - Save to Pocket
